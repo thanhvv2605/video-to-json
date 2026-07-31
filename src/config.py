@@ -14,6 +14,12 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 class Settings:
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
 
+    # Any OpenAI-compatible endpoint works — the official API, a self-hosted
+    # gateway, vLLM, or a regional reseller. Keeping this configurable means the
+    # provider can change without touching a line of pipeline code, and it makes
+    # the engine deployable where api.openai.com is slow or blocked.
+    openai_base_url: str = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+
     vision_model: str = os.getenv("VISION_MODEL", "gpt-4o")
     asr_model: str = os.getenv("ASR_MODEL", "whisper-1")
 
@@ -38,3 +44,11 @@ class Settings:
 
 
 settings = Settings()
+
+
+def make_client():
+    """Single place the API endpoint is decided, so swapping providers is a
+    config change rather than a search-and-replace across the pipeline."""
+    from openai import OpenAI
+
+    return OpenAI(api_key=settings.openai_api_key, base_url=settings.openai_base_url)

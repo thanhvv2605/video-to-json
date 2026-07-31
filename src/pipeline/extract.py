@@ -16,9 +16,7 @@ import base64
 from pathlib import Path
 from typing import List
 
-from openai import OpenAI
-
-from ..config import settings
+from ..config import make_client, settings
 from ..schemas import VideoInsight
 from .audio import Segment
 from .frames import Frame
@@ -44,7 +42,7 @@ def _data_url(path: Path) -> str:
 
 
 def extract(frames: List[Frame], segments: List[Segment]) -> VideoInsight:
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = make_client()
 
     transcript = "\n".join(f"[{s.start:.1f}-{s.end:.1f}] {s.text}" for s in segments)
     content: list = [{

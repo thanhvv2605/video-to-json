@@ -17,7 +17,7 @@ from typing import List
 
 from openai import OpenAI
 
-from ..config import settings
+from ..config import make_client, settings
 
 CHUNK_SECONDS = 20 * 60
 MAX_UPLOAD_BYTES = 24 * 1024 * 1024
@@ -43,7 +43,7 @@ def extract_audio(video: Path, workdir: Path) -> Path:
 
 
 def transcribe(audio: Path, duration: float) -> List[Segment]:
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = make_client()
 
     if audio.stat().st_size <= MAX_UPLOAD_BYTES and duration <= CHUNK_SECONDS:
         return _transcribe_one(client, audio, offset=0.0)

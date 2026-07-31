@@ -65,6 +65,22 @@ Submit returns `202` with a job id; the caller polls. Swapping the in-process
 executor for Redis and a worker pool is a configuration change, not a rewrite,
 because the job record is already the unit of work. `src/api.py`
 
+## Provider is configuration, not code
+
+`OPENAI_BASE_URL` points the whole pipeline at any OpenAI-compatible endpoint —
+the official API, a self-hosted gateway, vLLM, or a regional provider. One place
+in `src/config.py` builds the client, so switching providers never touches
+pipeline code:
+
+```bash
+OPENAI_BASE_URL=https://api.openai.com/v1     # default
+OPENAI_BASE_URL=http://localhost:8000/v1      # vLLM / LM Studio
+```
+
+That matters more than it looks: it keeps the engine deployable where
+api.openai.com is slow or unreachable, and it makes cost renegotiation a
+one-line change rather than a migration.
+
 ## Operational notes
 
 - Every run logs an estimated per-video cost (frames, vision, Whisper). Knowing
