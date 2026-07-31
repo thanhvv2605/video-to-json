@@ -1,5 +1,13 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Read .env from the project root regardless of where the process was started —
+# running `python -m src.cli` from a parent directory should not silently lose
+# the API key.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 
 @dataclass(frozen=True)

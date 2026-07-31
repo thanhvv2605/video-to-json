@@ -17,9 +17,13 @@ video ─┬─► FFmpeg scene detect ─► perceptual-hash dedup ─► cap �
 
 ## Run it
 
+Needs Python 3.9+ and `ffmpeg`/`ffprobe` on PATH (`brew install ffmpeg` on macOS,
+`apt install ffmpeg` on Debian/Ubuntu).
+
 ```bash
-cp .env.example .env          # add your OPENAI_API_KEY
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env          # add your OPENAI_API_KEY
 python -m src.cli samples/demo.mp4 --out result.json --srt demo.srt
 ```
 

@@ -64,7 +64,7 @@ def extract(frames: List[Frame], segments: List[Segment]) -> VideoInsight:
     last_error: Exception | None = None
     for _ in range(settings.max_retries):
         try:
-            resp = client.beta.chat.completions.parse(
+            resp = client.chat.completions.parse(
                 model=settings.vision_model,
                 messages=[{"role": "system", "content": SYSTEM},
                           {"role": "user", "content": content}],
