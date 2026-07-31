@@ -77,6 +77,17 @@ OPENAI_BASE_URL=https://api.openai.com/v1     # default
 OPENAI_BASE_URL=http://localhost:8000/v1      # vLLM / LM Studio
 ```
 
+`OUTPUT_LANGUAGE` works the same way: `source` (default) keeps the video's own
+language, which is what a catalogue serving a local market wants; a code such as
+`en` normalises everything instead.
+
+One warning learned the hard way: an output-language instruction placed only in
+the system prompt is ignored. The field descriptions inside the JSON schema win,
+and everything comes back in English. The rule has to appear in the system
+prompt, in the relevant field descriptions, *and* as the last thing the model
+reads. Structured outputs makes the schema the strongest instruction in the
+request — useful to know before debugging it as a model failure.
+
 That matters more than it looks: it keeps the engine deployable where
 api.openai.com is slow or unreachable, and it makes cost renegotiation a
 one-line change rather than a migration.

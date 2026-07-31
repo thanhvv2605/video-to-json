@@ -23,6 +23,12 @@ class Settings:
     vision_model: str = os.getenv("VISION_MODEL", "gpt-4o")
     asr_model: str = os.getenv("ASR_MODEL", "whisper-1")
 
+    # Language of the generated prose fields (summary, scene descriptions).
+    # "source" keeps whatever the video is in — the right default for a catalogue
+    # that has to stay searchable in the market it sells to. Set a BCP-47 code
+    # such as "en" to normalise everything into one language instead.
+    output_language: str = os.getenv("OUTPUT_LANGUAGE", "source")
+
     # Frame selection — the single biggest cost lever in this pipeline.
     # Scene threshold 0.30 is a good default for short-form social video;
     # lower it for slow product shots, raise it for fast-cut ads.

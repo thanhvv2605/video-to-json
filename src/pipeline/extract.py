@@ -32,9 +32,39 @@ Rules:
 - Timestamps must come from the labels given to you, never estimated.
 - on_screen_text is verbatim, including casing and currency symbols.
 - hooks are verbatim lines from the transcript, not paraphrases.
+- brand is the commercial label the item is sold under. Authors, artists,
+  designers and performers are creators, not brands — put them in `creators`.
+- attributes must be measurable or verifiable against the physical item: a
+  number, a unit, a colour, a material, a standard. Praise is not an attribute,
+  in any language — "modern design", "high quality", "great experience",
+  "thiết kế hiện đại", "độ hoàn thiện cao" are all marketing copy and belong in
+  `hooks`. Most short promotional videos state no measurable attribute at all,
+  so an empty list is the normal, correct answer. Never pad it.
+- Never repeat in one field what another field already holds. Creator names go
+  in `creators` only; the product name goes in `name` only; the price goes in
+  `price_text` only. None of them are attributes.
+- Read the frames for brand, not just the audio: a publisher, logo or store name
+  printed on the packaging is the brand even when nobody says it aloud.
 - Set confidence below 0.6 when frames are blurry, text is unreadable, or the
   audio carries no usable information.
+{language_rule}
 """
+
+def _language_rule() -> str:
+    """The output language has to be stated in the system prompt AND repeated as
+    the last thing the model reads. Stated once, it loses to the field
+    descriptions in the JSON schema and everything comes back in English."""
+    lang = settings.output_language.strip()
+    if lang.lower() in ("source", "", "auto"):
+        return ("OUTPUT LANGUAGE: the language actually spoken in this video. "
+                "Write summary, scene descriptions and attributes in that "
+                "language. Do not translate them into English.")
+    return (f"OUTPUT LANGUAGE: {lang}. Write summary, scene descriptions and "
+            f"attributes in {lang}, translating where necessary.")
+
+
+def _system_prompt() -> str:
+    return SYSTEM.format(language_rule="- " + _language_rule())
 
 
 def _data_url(path: Path) -> str:
@@ -58,13 +88,14 @@ def extract(frames: List[Frame], segments: List[Segment]) -> VideoInsight:
             # that matters here; raise it only when reading fine print.
             "image_url": {"url": _data_url(f.path), "detail": "low"},
         })
+    content.append({"type": "text", "text": _language_rule()})
 
     last_error: Exception | None = None
     for _ in range(settings.max_retries):
         try:
             resp = client.chat.completions.parse(
                 model=settings.vision_model,
-                messages=[{"role": "system", "content": SYSTEM},
+                messages=[{"role": "system", "content": _system_prompt()},
                           {"role": "user", "content": content}],
                 response_format=VideoInsight,
                 temperature=0,
