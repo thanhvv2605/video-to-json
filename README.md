@@ -1,5 +1,7 @@
 # video-to-json
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A small, runnable reference implementation of a video → structured-JSON pipeline:
 scene-aware frame extraction (FFmpeg), transcription with segment timestamps
 (Whisper), and multimodal extraction into a schema-validated object (GPT-4o
